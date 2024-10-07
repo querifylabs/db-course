@@ -26,7 +26,7 @@ you can pick an arbitrary file for table creation.
   * Update `CustomDataTypeSystem` to properly handle timestamp types
   * In `toRel()` method of table implementation, return an instance of `LogicalTableScan`
 
-## Additional Excercises
+## Additional Exercises
   * Study how different components of the optimizer are assembled together in `CourseOptimizer`
   * Check the difference between the parsed AST tree and relational operator tree
   * Play with case sensitivity settings. What changes are required to properly support
