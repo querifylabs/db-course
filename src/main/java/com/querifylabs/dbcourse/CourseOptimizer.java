@@ -1,5 +1,6 @@
 package com.querifylabs.dbcourse;
 
+import com.querifylabs.dbcourse.rel.FoldTreeRelVisitor;
 import com.querifylabs.dbcourse.schema.ParquetSchema;
 import com.querifylabs.dbcourse.sql.ExtendedSqlOperatorTable;
 import org.apache.calcite.avatica.util.Casing;
@@ -7,11 +8,11 @@ import org.apache.calcite.config.CalciteConnectionConfig;
 import org.apache.calcite.config.CalciteConnectionProperty;
 import org.apache.calcite.jdbc.CalciteSchema;
 import org.apache.calcite.plan.RelOptCluster;
+import org.apache.calcite.plan.RelTraitSet;
 import org.apache.calcite.plan.volcano.VolcanoPlanner;
 import org.apache.calcite.prepare.CalciteCatalogReader;
 import org.apache.calcite.rel.RelRoot;
 import org.apache.calcite.rel.type.RelDataTypeFactory;
-import org.apache.calcite.rel.type.RelDataTypeSystem;
 import org.apache.calcite.rex.RexBuilder;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.fun.SqlStdOperatorTable;
@@ -23,6 +24,8 @@ import org.apache.calcite.sql.validate.SqlValidator;
 import org.apache.calcite.sql.validate.SqlValidatorUtil;
 import org.apache.calcite.sql2rel.SqlToRelConverter;
 import org.apache.calcite.sql2rel.StandardConvertletTable;
+import org.apache.calcite.tools.Program;
+import org.apache.calcite.tools.Programs;
 
 import java.io.StringReader;
 import java.util.List;
@@ -60,6 +63,18 @@ public class CourseOptimizer {
         return sqlToRelConverter.convertQuery(validated, false, true);
     }
 
+    public RelRoot optimize(RelRoot unoptimized) {
+        var program = getFullProgram();
+
+        var optimized = program.run(volcanoPlanner,
+                unoptimized.rel,
+                RelTraitSet.createEmpty(),
+                List.of(),
+                List.of());
+
+        return unoptimized.withRel(optimized);
+    }
+
     protected SqlNode parseSql(String sql) throws ParserException {
         var parser = new SqlParserImpl(new StringReader(sql));
         parser.setQuotedCasing(Casing.UNCHANGED);
@@ -72,5 +87,15 @@ public class CourseOptimizer {
         } catch (Exception e) {
             throw new ParserException(e);
         }
+    }
+
+    protected Program getFullProgram() {
+        return Programs.sequence(
+            foldConstantsProgram()
+        );
+    }
+
+    protected Program foldConstantsProgram() {
+        return (planner, rel, requiredOutputTraits, materializations, lattices) -> rel.accept(new FoldTreeRelVisitor());
     }
 }
