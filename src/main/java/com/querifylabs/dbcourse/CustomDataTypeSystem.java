@@ -7,9 +7,8 @@ public class CustomDataTypeSystem extends RelDataTypeSystemImpl {
     @Override
     public int getMaxPrecision(SqlTypeName typeName) {
         switch (typeName) {
-            case TIMESTAMP:
-            case TIMESTAMP_TZ:
-                return 9;
+            case TIMESTAMP, TIMESTAMP_TZ:
+                return 6;
             default:
                 return super.getMaxPrecision(typeName);
         }

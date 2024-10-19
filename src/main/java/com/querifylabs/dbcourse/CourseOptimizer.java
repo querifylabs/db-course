@@ -36,8 +36,9 @@ public class CourseOptimizer {
 
     public CourseOptimizer(String rootPath) {
         dataTypeFactory = new SqlTypeFactoryImpl(new CustomDataTypeSystem());
+        CalciteSchema root = CalciteSchema.createRootSchema(false, true, "", new ParquetSchema(rootPath, dataTypeFactory));
         var catalogReader = new CalciteCatalogReader(
-                CalciteSchema.createRootSchema(false, true, "", new ParquetSchema(rootPath, dataTypeFactory)),
+                root,
                 List.of(),
                 dataTypeFactory,
                 CalciteConnectionConfig.DEFAULT.set(CalciteConnectionProperty.CASE_SENSITIVE, "false"));
@@ -52,6 +53,8 @@ public class CourseOptimizer {
         sqlToRelConverter = new SqlToRelConverter(
                 null, validator, catalogReader, cluster, StandardConvertletTable.INSTANCE,
                 SqlToRelConverter.config().withTrimUnusedFields(true));
+
+        System.out.println(root.getSubSchemaMap());
     }
 
     public RelRoot convert(String sql) {
