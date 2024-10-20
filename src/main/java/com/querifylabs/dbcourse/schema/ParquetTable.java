@@ -74,7 +74,7 @@ public class ParquetTable extends AbstractTable implements TranslatableTable {
 
         columns.forEach(column -> {
             if (column.sqlTypeName.equals(SqlTypeName.TIMESTAMP) || column.sqlTypeName.equals(SqlTypeName.TIMESTAMP_TZ)) {
-                builder.add(column.name, column.sqlTypeName, relDataTypeFactory.getTypeSystem().getMaxPrecision(column.sqlTypeName)).nullable(true);
+                builder.add(column.name, column.sqlTypeName, relDataTypeFactory.getTypeSystem().getMaxPrecision(column.sqlTypeName));
             } else {
                 builder.add(column.name, column.sqlTypeName);
             }

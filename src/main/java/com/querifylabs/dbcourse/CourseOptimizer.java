@@ -53,8 +53,6 @@ public class CourseOptimizer {
         sqlToRelConverter = new SqlToRelConverter(
                 null, validator, catalogReader, cluster, StandardConvertletTable.INSTANCE,
                 SqlToRelConverter.config().withTrimUnusedFields(true));
-
-        System.out.println(root.getSubSchemaMap());
     }
 
     public RelRoot convert(String sql) {
