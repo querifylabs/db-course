@@ -24,6 +24,7 @@ you can pick an arbitrary file for table creation.
   * Use `ParquetFileReader` (dependency is already included) to read parquet metadata 
     and convert parquet schema to table row type
   * Update `CustomDataTypeSystem` to properly handle timestamp types
+  * In `toRel()` method of table implementation, return an instance of `LogicalTableScan`
 
 ## Additional Excercises
   * Study how different components of the optimizer are assembled together in `CourseOptimizer`
