@@ -1,9 +1,11 @@
 package com.querifylabs.dbcourse;
 
+import org.apache.calcite.plan.RelOptUtil;
+import org.apache.calcite.rel.RelNode;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -75,5 +77,9 @@ public class TestBase {
             throw new RuntimeException("Failed to rename '" + tmpFile.getAbsolutePath() +
                     "' to '" + dstPath.toFile().getAbsolutePath() + "'");
         }
+    }
+
+    protected void validatePlan(RelNode root, String expectedPlan) {
+        Assertions.assertThat(RelOptUtil.toString(root)).isEqualTo(expectedPlan);
     }
 }
