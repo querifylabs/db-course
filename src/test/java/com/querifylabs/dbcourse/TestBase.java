@@ -57,7 +57,11 @@ public class TestBase {
             }
         }
 
-        optimizer = new CourseOptimizer(DATA_ROOT);
+        optimizer = new CourseOptimizer(DATA_ROOT, enableScanPushdown());
+    }
+
+    protected boolean enableScanPushdown() {
+        return false;
     }
 
     private static void download(String downloadUrl, Path tmpPath, Path dstPath) {

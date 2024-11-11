@@ -41,7 +41,7 @@ public class CourseOptimizer {
     protected SqlToRelConverter sqlToRelConverter;
     protected VolcanoPlanner volcanoPlanner;
 
-    public CourseOptimizer(String rootPath) {
+    public CourseOptimizer(String rootPath, boolean enableScanPushdown) {
         dataTypeFactory = new SqlTypeFactoryImpl(new CustomDataTypeSystem());
         var catalogReader = new CalciteCatalogReader(
                 CalciteSchema.createRootSchema(false, true, "", new ParquetSchema(rootPath, dataTypeFactory)),
@@ -55,8 +55,13 @@ public class CourseOptimizer {
 
         volcanoPlanner = new VolcanoPlanner();
         volcanoPlanner.addRelTraitDef(ConventionTraitDef.INSTANCE);
+
         for (var rule : ToPhysicalRules.ALL) {
             volcanoPlanner.addRule(rule);
+        }
+
+        if (enableScanPushdown) {
+            // TODO Task 6: Add project and filter into scan rules.
         }
 
         relOptCluster = RelOptCluster.create(volcanoPlanner, new RexBuilder(dataTypeFactory));
