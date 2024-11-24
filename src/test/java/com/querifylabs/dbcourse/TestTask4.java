@@ -17,4 +17,19 @@ public class TestTask4 extends TestBase {
 
         validatePlan(unoptimized.rel, expectedPlan);
     }
+
+    @Test
+    void testTrimUnisedFields2() {
+        var unoptimized = optimizer.convert(
+                "select total_amount, passenger_count from public.taxirides where tip_amount > 1");
+
+        String expectedPlan = """
+                LogicalProject(total_amount=[$2], passenger_count=[$0])
+                  LogicalFilter(condition=[>($1, 1)])
+                    LogicalProject(passenger_count=[$3], tip_amount=[$13], total_amount=[$16])
+                      LogicalTableScan(table=[[public, taxirides]])
+                """;
+
+        validatePlan(unoptimized.rel, expectedPlan);
+    }
 }
