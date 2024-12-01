@@ -1,8 +1,6 @@
 package com.querifylabs.dbcourse.rel;
 
 import com.querifylabs.dbcourse.TestBase;
-import com.querifylabs.dbcourse.sql.ExtendedSqlOperatorTable;
-import com.querifylabs.dbcourse.sql.SqlBase64DecodeFunction;
 import org.apache.calcite.avatica.util.ByteString;
 import org.apache.calcite.rel.logical.LogicalFilter;
 import org.apache.calcite.rel.logical.LogicalProject;
@@ -46,5 +44,26 @@ public class TestTask3 extends TestBase {
                                     });
                     });
                 });
+    }
+
+    @Test
+    public void testMoreComplexExpressions() {
+        var unoptimized = optimizer.convert(
+            """
+            select base64Decode(store_and_fwd_flag),
+                   base64decode('QQ=='),
+                   'A' || cast(base64decode('QQ==') as VARCHAR)
+            from public.taxirides where store_and_fwd_flag = base64decode('QQ==')
+            """);
+        var optimized = optimizer.optimize(unoptimized);
+
+        String expectedPlan = """
+        LogicalProject(EXPR$0=[base64decode($0)], EXPR$1=[X'41':BINARY(1)], EXPR$2=[||('A', CAST(X'41':BINARY(1)):VARCHAR NOT NULL)])
+          LogicalFilter(condition=[=(CAST($0):VARBINARY, X'41':BINARY(1))])
+            LogicalProject(store_and_fwd_flag=[$6])
+              LogicalTableScan(table=[[public, taxirides]])
+        """;
+
+        validatePlan(optimized.rel, expectedPlan);
     }
 }
