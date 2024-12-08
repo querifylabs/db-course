@@ -84,6 +84,6 @@ public class TestBase {
     }
 
     protected void validatePlan(RelNode root, String expectedPlan) {
-        Assertions.assertThat(RelOptUtil.toString(root)).isEqualTo(expectedPlan);
+        Assertions.assertThat(RelOptUtil.toString(root).replace("\r", "")).isEqualTo(expectedPlan.replace("\r", ""));
     }
 }

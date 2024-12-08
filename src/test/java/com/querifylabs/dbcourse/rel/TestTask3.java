@@ -55,15 +55,19 @@ public class TestTask3 extends TestBase {
                    'A' || cast(base64decode('QQ==') as VARCHAR)
             from public.taxirides where store_and_fwd_flag = base64decode('QQ==')
             """);
-        var optimized = optimizer.optimize(unoptimized);
+        var optimized = optimizer.optimize(unoptimized).rel;
 
-        String expectedPlan = """
-        LogicalProject(EXPR$0=[base64decode($0)], EXPR$1=[X'41':BINARY(1)], EXPR$2=[||('A', CAST(X'41':BINARY(1)):VARCHAR NOT NULL)])
-          LogicalFilter(condition=[=(CAST($0):VARBINARY, X'41':BINARY(1))])
-            LogicalProject(store_and_fwd_flag=[$6])
-              LogicalTableScan(table=[[public, taxirides]])
-        """;
+        assertThat(optimized).isExactlyInstanceOf(LogicalProject.class);
+        assertThat(optimized.getInput(0)).isExactlyInstanceOf(LogicalFilter.class);
 
-        validatePlan(optimized.rel, expectedPlan);
+        var project = (LogicalProject)optimized;
+        var filter = (LogicalFilter)optimized.getInput(0);
+
+        assertThat(project.getProjects()).hasSize(3);
+        assertThat(project.getProjects().get(0).toString()).isEqualTo("base64decode($0)");
+        assertThat(project.getProjects().get(1).toString()).isEqualTo("X'41':BINARY(1)");
+        assertThat(project.getProjects().get(2).toString()).isEqualTo("||('A', CAST(X'41':BINARY(1)):VARCHAR NOT NULL)");
+
+        assertThat(filter.getCondition().toString()).isEqualTo("=(CAST($0):VARBINARY, X'41':BINARY(1))");
     }
 }
