@@ -64,10 +64,10 @@ public class TestTask3 extends TestBase {
         var filter = (LogicalFilter)optimized.getInput(0);
 
         assertThat(project.getProjects()).hasSize(3);
-        assertThat(project.getProjects().get(0).toString()).isEqualTo("base64decode($0)");
+        assertThat(project.getProjects().get(0).toString()).isEqualTo("base64decode($6)");
         assertThat(project.getProjects().get(1).toString()).isEqualTo("X'41':BINARY(1)");
         assertThat(project.getProjects().get(2).toString()).isEqualTo("||('A', CAST(X'41':BINARY(1)):VARCHAR NOT NULL)");
 
-        assertThat(filter.getCondition().toString()).isEqualTo("=(CAST($0):VARBINARY, X'41':BINARY(1))");
+        assertThat(filter.getCondition().toString()).isEqualTo("=(CAST($6):VARBINARY, X'41':BINARY(1))");
     }
 }
